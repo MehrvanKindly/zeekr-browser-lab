@@ -396,6 +396,15 @@
     });
     try { history.replaceState(null, "", window.location.pathname); } catch (_) {}
   }
+  /* Back/forward navigation can restore form values after deferred scripts run.
+     Reset the gate on pageshow so a restored checkmark never disagrees with buttons. */
+  window.addEventListener("pageshow", function () {
+    generation += 1;
+    pendingCancels.slice().forEach(function (cancel) { cancel(); });
+    $("parked").checked = false;
+    $("sentinel-ready").checked = false;
+    updateGates();
+  });
   persist(); render(); updateGates();
 }());
 
