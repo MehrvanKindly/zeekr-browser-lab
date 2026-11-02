@@ -10,6 +10,7 @@
   var isolationRunning = false;
   var fileRunning = false;
   var pendingCancels = [];
+  var braveUI;
   try { report = lab.restoreReport(sessionStorage.getItem(storageKey)); }
   catch (_) { storageAvailable = false; }
   report = report || lab.newReport();
@@ -63,6 +64,7 @@
     updateOutput("engine", "engine-output", "engine-status");
     updateOutput("links", "links-output", "links-status");
     updateOutput("files", "files-output", "files-status");
+    if (braveUI) braveUI.render(report);
     var timeline = $("timeline");
     timeline.textContent = "";
     if (!report.entries.length) {
@@ -109,6 +111,7 @@
     $("run-isolation").disabled = !enabled || isolationRunning;
     $("run-baseline").disabled = !enabled || isolationRunning;
     $("run-file").disabled = !enabled || fileRunning;
+    if (braveUI) braveUI.gate(enabled);
   }
   function environment() {
     if (!allowed()) return;
@@ -383,9 +386,12 @@
     report = lab.newReport();
     $("device-note").value = ""; $("session-note").value = "";
     $("sentinel-ready").checked = false; $("parked").checked = false;
+    if (braveUI) braveUI.reset();
     persist(); render(); updateGates();
     notice("This lab’s session cleared. Existing exported files are unchanged.");
   });
+  braveUI = window.BraveInstaller.attach({ add: add, allowed: allowed, getReport: function () { return report; } });
+  braveUI.handleFallback();
   /* Only annotate a fallback when this tab has a matching intent attempt.
      A fragment alone is never treated as evidence of app launch. */
   if (window.location.hash === "#intent-fallback") {

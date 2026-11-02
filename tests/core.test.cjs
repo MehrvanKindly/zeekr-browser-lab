@@ -97,10 +97,58 @@ test("all published HTML is noindex and every local asset reference exists", () 
 });
 test("scripts parse as classic scripts and no third-party runtime assets are loaded", () => {
   const site = path.resolve(__dirname, "../site");
-  for (const name of ["core.js", "app.js", "probe.js"]) new vm.Script(fs.readFileSync(path.join(site, name), "utf8"));
+  for (const name of ["core.js", "app.js", "probe.js", "brave.js", "brave-release.js"]) new vm.Script(fs.readFileSync(path.join(site, name), "utf8"));
   const html = fs.readFileSync(path.join(site, "index.html"), "utf8");
   assert.ok(!/<script[^>]*src="https?:/i.test(html));
   assert.ok(!/<link[^>]*href="https?:/i.test(html));
   assert.ok(!/on(?:click|load|error)=/i.test(html));
 });
 
+test("Brave routes use only verified official APK metadata and explicit Android VIEW actions", () => {
+  const release = require("../site/brave-release.js");
+  for (const asset of release.assets) {
+    const routes = lab.braveRoutes(release, asset.name, "https://owner.github.io/lab/?secret=123#note");
+    assert.equal(routes.download, asset.url);
+    assert.ok(routes.download.startsWith("https://github.com/brave/brave-browser/releases/download/" + release.tag + "/"));
+    assert.match(routes.handoff, /action=android.intent.action.VIEW;/);
+    assert.match(routes.handoff, /type=application\/vnd.android.package-archive;/);
+    assert.ok(!routes.handoff.includes("component="));
+    assert.ok(!routes.handoff.includes("launchFlags="));
+    assert.ok(!routes.handoff.includes("secret"));
+    const fallback = /S.browser_fallback_url=([^;]+)/.exec(routes.handoff)[1];
+    assert.equal(decodeURIComponent(fallback), "https://owner.github.io/lab/#brave-intent-fallback");
+    assert.match(routes.launch, /package=com.brave.browser;/);
+    assert.ok(!routes.launch.includes(".apk"));
+  }
+});
+test("Brave routes reject arbitrary binaries, unverified URLs and malformed release identifiers", () => {
+  const release = require("../site/brave-release.js");
+  assert.throws(() => lab.braveRoutes(release, "", "https://example.com"));
+  assert.throws(() => lab.braveRoutes(release, "payload.apk", "https://example.com"));
+  assert.throws(() => lab.braveRoutes(release, release.assets[0].name, "file:///lab/index.html"));
+  const forged = structuredClone(release);
+  forged.assets[0].url = "https://untrusted.example/Brave.apk";
+  assert.throws(() => lab.braveRoutes(forged, forged.assets[0].name, "https://example.com"));
+  forged.assets[0].url = release.assets[0].url;
+  forged.tag = "v1;component=unexpected";
+  assert.throws(() => lab.braveRoutes(forged, forged.assets[0].name, "https://example.com"));
+});
+test("reports distinguish installer observations from verified installation", () => {
+  const report = lab.newReport();
+  lab.appendEntry(report, {
+    id: "attempt-1", at: new Date().toISOString(), test: "brave.attempt", state: "unknown",
+    summary: "APK handoff requested", source: "browser-observation",
+    details: { route: "handoff", asset: "Bravearm64Universal.apk", installationVerified: false }
+  });
+  lab.appendEntry(report, {
+    id: "observation-1", at: new Date().toISOString(), test: "brave.manual", state: "observed",
+    summary: "User reported: Installation completed.", source: "user-reported",
+    details: { attemptId: "attempt-1", outcome: "installed", installationVerified: false }
+  });
+  const restored = lab.restoreReport(JSON.stringify(report));
+  assert.equal(restored.entries[0].state, "unknown");
+  assert.equal(restored.entries[1].source, "user-reported");
+  assert.equal(restored.entries[1].details.attemptId, "attempt-1");
+  assert.equal(restored.entries[1].details.installationVerified, false);
+  assert.ok(restored.limitations.some(text => text.includes("never automatically verified")));
+});

@@ -60,6 +60,21 @@
     base.hash = "intent-fallback";
     return "intent://example.com/#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;S.browser_fallback_url=" + encodeURIComponent(base.href) + ";end";
   }
+  function braveRoutes(release, assetName, baseUrl) {
+    var allowedAssets = ["Bravearm64Universal.apk", "BraveMonoarm64.apk", "BraveMonoarm.apk", "BraveMonox64.apk", "BraveMonox86.apk"];
+    if (!release || !/^v\d+\.\d+\.\d+$/.test(release.tag) || allowedAssets.indexOf(assetName) < 0) throw new Error("Choose a verified official Brave APK.");
+    var asset = release.assets.find(function (item) { return item.name === assetName; });
+    var expected = "https://github.com/brave/brave-browser/releases/download/" + release.tag + "/" + assetName;
+    if (!asset || asset.url !== expected || !/^sha256:[a-f0-9]{64}$/.test(asset.digest) || !(asset.bytes > 0)) throw new Error("Invalid official APK metadata.");
+    var base = new URL(baseUrl);
+    if (!/^https?:$/.test(base.protocol)) throw new Error("Serve this lab over HTTP or HTTPS.");
+    base.search = "";
+    base.hash = "brave-intent-fallback";
+    var handoff = "intent://" + expected.slice("https://".length) + "#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;type=application/vnd.android.package-archive;S.browser_fallback_url=" + encodeURIComponent(base.href) + ";end";
+    base.hash = "brave-launch-fallback";
+    var launch = "intent://example.com/#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.brave.browser;S.browser_fallback_url=" + encodeURIComponent(base.href) + ";end";
+    return { asset: asset, release: release.tag, download: expected, handoff: handoff, launch: launch };
+  }
   function newReport() {
     return {
       schema: "browser-lab-report/v1",
@@ -70,7 +85,8 @@
       entries: [],
       limitations: [
         "No verified EU 7X exploit or implementation is established by this report.",
-        "Native method invocation, permission prompts, automatic app launches, exploit payloads, vehicle control, APK installation and ADB are not tested.",
+        "Native method invocation, automatic app launches, exploit payloads, vehicle control, silent installation, protection bypass and ADB are not tested.",
+        "Brave download and Android handoff routes are user-triggered; Android owns installation consent. Installation outcomes are user-reported, never automatically verified.",
         "Engine patch status, root access and comprehensive file/bridge security remain unknown.",
         "Manual observations are user-reported, not automatically verified.",
         "File-origin and content-URI access settings are not covered by the HTTPS sentinel check."
@@ -105,7 +121,7 @@
   return {
     SENTINEL: SENTINEL, FILE_NAME: FILE_NAME, parseAgent: parseAgent,
     inspectBridgeNames: inspectBridgeNames, classifySentinel: classifySentinel,
-    filePath: filePath, intentLink: intentLink, newReport: newReport,
+    filePath: filePath, intentLink: intentLink, braveRoutes: braveRoutes, newReport: newReport,
     appendEntry: appendEntry, restoreReport: restoreReport
   };
 }));

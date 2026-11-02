@@ -17,6 +17,24 @@ This is an independent diagnostic tool, not an exploit or a security certificati
 
 The report is selectable on screen if downloads do not work. A page transition can lose results when session storage is unsupported; the UI reports this limitation. Export first in that case.
 
+## Brave APK installation attempts
+
+The **Try installing Brave** section turns the download, app-handoff and downloaded-file boundaries into user-triggered installation routes:
+
+1. Choose an architecture from the device's specifications; this page does not infer it from the user agent.
+2. **Download Brave APK** navigates directly to the selected official GitHub asset.
+3. **Try APK intent** sends the same HTTPS URL through an Android browsable VIEW intent with the APK MIME type. A downloader or chooser may open, or no handler may exist. An HTTPS URL alone is generally insufficient for Android's package installer; this is an experimental handoff test, not a promised installation.
+4. **Log a manual file attempt** records your choice to use the device's Downloads or Files app to open that APK. The button does not open a file. Review any installer prompts on the device. A webpage cannot manufacture a content URI or grant an installer access to a private file.
+5. **Try opening Brave** sends a normal VIEW intent specifically to `com.brave.browser`. A returned fallback never establishes that Brave launched or was installed.
+
+Return to the page and annotate the exact attempt: downloaded, installer appeared, installed, Brave opened, fallback, policy blocked, incompatible, no visible effect, or cancelled. Outcomes are explicitly user-reported, and `installationVerified` remains false. The baseline never triggers any Brave route. Installed-app checks do not associate an existing Brave installation with the selected APK version.
+
+APKs are linked from the official **v1.98.63** release, checked **2026-11-02**, with filenames, sizes and SHA-256 digests pinned in `site/brave-release.js`. APK bytes are not mirrored, fetched in the background or read by this site. Published digests are metadata, not a claim that a downloaded file was verified. Check the official release page before later sessions; this snapshot does not update itself.
+
+Brave currently documents Android 10 or later. That does not establish Android Automotive or EU 7X compatibility. The supported CPU architecture, available installer, hosting app permissions and device policy all remain device-specific. If the route is blocked, record the outcome; there is no restriction bypass, privileged bridge invocation, exploit-based installation or silent-install route.
+
+Sources: [Brave's download and installation guidance](https://support.brave.app/hc/en-us/articles/360025390311-How-do-I-download-and-install-Brave), [system requirements](https://support.brave.app/hc/en-us/articles/360021357112-What-are-the-system-requirements-to-install-Brave), [pinned official release](https://github.com/brave/brave-browser/releases/tag/v1.98.63), and [Chrome intent handling](https://developer.chrome.com/docs/android/intents).
+
 ## Coverage and limits
 
 | Investigation target | Implemented observation | What remains unknown |
@@ -45,7 +63,7 @@ There is no standard web command to enable ADB, install an APK silently or root 
 
 ## Privacy and persistence
 
-There is no backend, analytics, third-party script, webfont, report upload, service worker or install flow. Reports remain in memory and this tab's sessionStorage under `zeekr-browser-lab:session:v1`; exports happen only when requested. At most 200 entries are retained. Closing the tab generally clears session storage, subject to browser session restore. Other code on the same origin can potentially access browser storage; do not put secrets in notes.
+There is no backend, analytics, third-party script, webfont, report upload or service worker. Brave links can hand off to a device-owned download or installation flow after a tap. Reports remain in memory and this tab's sessionStorage under `zeekr-browser-lab:session:v1`; exports happen only when requested. At most 200 entries are retained. Closing the tab generally clears session storage, subject to browser session restore. Other code on the same origin can potentially access browser storage; do not put secrets in notes.
 
 GitHub receives ordinary hosting requests. External reference links and the HTTPS/intent controls make explicit navigations to their listed destinations. Downloaded reports can contain a user agent, software notes, timestamps and viewport dimensions; review them before sharing. Sentinel contents are checked in memory and never copied into a report.
 

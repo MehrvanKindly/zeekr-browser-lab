@@ -11,13 +11,15 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <script defer src="./core.js"></script>
+  <script defer src="./brave-release.js"></script>
+  <script defer src="./brave.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body>
 <a class="skip" href="#tests">Skip to tests</a>
 <header class="topbar">
   <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">B<span>/</span>L</span> BROWSER LAB</a>
-  <nav aria-label="Main navigation"><a href="#tests">Test bench</a><a href="#evidence">Report <span id="report-count">0</span></a><a href="#method">Method</a></nav>
+  <nav aria-label="Main navigation"><a href="#tests">Test bench</a><a href="#brave-install">Brave install</a><a href="#evidence">Report <span id="report-count">0</span></a></nav>
   <span class="local-pill"><i aria-hidden="true"></i> Browser-local results</span>
 </header>
 <main>
@@ -26,7 +28,7 @@
       <p class="eyebrow">VEHICLE BROWSER DIAGNOSTICS <span> / </span> EU 7X INVESTIGATION</p>
       <h1 id="title">See what your<br>browser exposes<span class="accent">.</span></h1>
       <p class="hero-copy">A controlled test bench for native bridges, app links, engine hints and file boundaries. Collect observations. Understand their limits.</p>
-      <div class="hero-actions"><button id="run-baseline" class="primary" data-test disabled>Run baseline checks <span aria-hidden="true">↗</span></button><a class="text-link" href="#method">What these tests tell you <span aria-hidden="true">↓</span></a></div>
+      <div class="hero-actions"><button id="run-baseline" class="primary" data-test disabled>Run baseline checks <span aria-hidden="true">↗</span></button><a class="text-link" href="#brave-install">Try Brave installation <span aria-hidden="true">↓</span></a></div>
       <p class="micro">Baseline runs environment, bridge-name and sandbox checks only.</p>
     </div>
     <aside class="instrument" aria-label="Session status">
@@ -42,6 +44,32 @@
   </section>
   <noscript><p class="notice">JavaScript is unavailable. Diagnostics cannot run; this does not establish why JavaScript is unavailable.</p></noscript>
   <div id="notice" class="notice" role="status" aria-live="polite">Ready when you are. Confirm the device is parked to enable checks.</div>
+  <section id="brave-install" class="install-section" aria-labelledby="brave-title">
+    <div class="section-heading"><div><p class="eyebrow">PUT THE BOUNDARIES TO WORK</p><h2 id="brave-title">Try installing Brave.</h2></div><span id="brave-status" class="badge">Not attempted</span></div>
+    <p class="install-intro">Choose an official APK, then try one route at a time. A route can request a download or app handoff; the device controls whether an installer opens and permits installation.</p>
+    <div class="install-setup">
+      <div><label for="brave-asset">APK architecture · choose from your device’s specifications</label><select id="brave-asset"><option value="">Choose an APK — architecture not detected</option></select><p class="micro">Brave requires Android 10 or later. CPU architecture and vehicle compatibility are unverified.</p></div>
+      <div class="release-info"><strong id="brave-release-label"></strong><p id="brave-asset-info">Select a build to see its filename and download size.</p><a id="brave-release-source" href="https://github.com/brave/brave-browser/releases/tag/v1.98.63" target="_blank" rel="noopener noreferrer">Official release & all assets ↗</a></div>
+    </div>
+    <div class="install-routes">
+      <article><span class="track">ROUTE 01 / DOWNLOAD</span><h3>Get the official APK</h3><p>Send the selected APK to the browser’s normal download handler. The file comes directly from Brave’s GitHub release.</p><a id="brave-download" class="primary brave-action" role="link" aria-disabled="true" tabindex="-1">Download Brave APK ↗</a><p class="micro">Downloading a file does not install it. This can use hundreds of MB.</p></article>
+      <article><span class="track">ROUTE 02 / ANDROID HANDOFF</span><h3>Request an APK handler</h3><p>Ask Android to handle the same HTTPS APK URL with its APK file type. An app chooser, downloader, or no handler may appear.</p><a id="brave-handoff" class="secondary brave-action" role="link" aria-disabled="true" tabindex="-1">Try APK intent ↗</a><p class="micro">Experimental: an HTTPS URL alone is generally insufficient for an installer. A fallback is not a successful install.</p></article>
+      <article><span class="track">ROUTE 03 / DOWNLOADED FILE</span><h3>Open it on the device</h3><p>After downloading, use the car’s Downloads or Files app to select the APK. If an installer appears, review its prompts on the device.</p><button id="brave-manual" class="secondary" data-test disabled>Log a manual file attempt</button><p class="micro">This button logs your attempt only. The webpage cannot manufacture an Android content URI or open a private downloaded file.</p></article>
+    </div>
+    <div class="install-results">
+      <div><label for="brave-attempt">Brave attempt to annotate</label><select id="brave-attempt"><option value="">Try a route first</option></select></div>
+      <div><label for="brave-outcome">Observed Brave outcome</label><select id="brave-outcome"><option value="uncertain">Unsure / not recorded</option><option value="downloaded">APK downloaded</option><option value="installer-shown">Installer prompt appeared</option><option value="installed">Installation completed (I saw confirmation)</option><option value="brave-opened">Brave opened (I saw the app)</option><option value="fallback">Fallback page or another handler appeared</option><option value="policy-blocked">Installation blocked by device policy</option><option value="incompatible">APK incompatible / parse error</option><option value="no-effect">No visible effect</option><option value="cancelled">I cancelled</option></select></div>
+      <button id="brave-record" class="secondary" data-test disabled>Save Brave outcome</button>
+    </div>
+    <div class="launch-row"><div><strong>After installation</strong><p>Try opening a test page specifically in Brave. Return and record whether you actually saw Brave.</p></div><a id="brave-launch" class="secondary brave-action" role="link" aria-disabled="true" tabindex="-1">Try opening Brave ↗</a></div>
+    <p id="brave-notice" class="notice" role="status" aria-live="polite">Confirm the device is parked above, then choose an APK.</p>
+    <details><summary>How the four boundaries apply to installation</summary>
+      <dl class="boundary-map"><dt>JavaScript → native</dt><dd>Bridge names do not reveal a documented installer API. The lab records them without guessing or invoking native methods.</dd><dt>Links / intents</dt><dd>The download and APK intent routes request standard user-visible handling. Installation still depends on Android and the hosting app.</dd><dt>Browser engine</dt><dd>Environment and isolation checks provide context. They do not exploit engine bugs to install software.</dd><dt>File boundary</dt><dd>A Downloads or Files app may pass the downloaded APK to an installer with a readable content URI. A hosted webpage cannot grant that access itself.</dd></dl>
+      <p>If a route is blocked or the device has no installer, record that outcome. These routes do not bypass restrictions or install silently.</p>
+      <p><a href="https://support.brave.app/hc/en-us/articles/360025390311-How-do-I-download-and-install-Brave" target="_blank" rel="noopener noreferrer">Brave installation guidance ↗</a> · <a href="https://support.brave.app/hc/en-us/articles/360021357112-What-are-the-system-requirements-to-install-Brave" target="_blank" rel="noopener noreferrer">Brave requirements ↗</a></p>
+    </details>
+    <details><summary>Selected APK metadata & Brave observations</summary><pre id="brave-metadata">No APK selected.</pre><p class="micro">The SHA-256 comes from official release metadata. This page does not read or verify a downloaded APK.</p><pre id="brave-output">No Brave attempts yet.</pre></details>
+  </section>
   <section id="tests" aria-labelledby="tests-title">
     <div class="section-heading"><div><p class="eyebrow">THE TEST BENCH</p><h2 id="tests-title">Four boundaries to investigate.</h2></div><p>Each result is evidence of one behavior. <br>None is a security certification.</p></div>
     <div class="test-grid">
@@ -124,7 +152,7 @@
     <div class="method-copy">
       <p>This lab does not identify the EU 7X’s browser implementation. A WebView-looking user agent can be changed or reduced; it does not verify the app’s engine, build, configuration or Android security patch level.</p>
       <p>Android’s documented risk classes include exposed native bridges, unsafe URI handling and permissive file access. Engine memory-safety bugs require an applicable vulnerable build. Testing their exploitability needs a controlled lab and a verified vendor build.</p>
-      <p>There is no standard webpage command to enable ADB, silently install an APK or root a vehicle. This lab does not attempt those operations, vehicle control, native method invocation, permission prompts or automatic app launches.</p>
+      <p>There is no standard webpage command to enable ADB, silently install an APK or root a vehicle. The Brave section requests downloads and app handoffs after your tap; Android owns any installation prompts. The lab does not attempt protection bypasses, vehicle control, native method invocation or automatic app launches.</p>
       <div class="legend"><span><i class="legend-dot observed"></i> Observed: limited behavior</span><span><i class="legend-dot review"></i> Review: unexpected behavior</span><span><i class="legend-dot unknown"></i> Unknown: not established</span></div>
       <details><summary>Primary sources & next steps</summary>
         <ul class="source-list">
