@@ -11,6 +11,7 @@
   var fileRunning = false;
   var pendingCancels = [];
   var braveUI;
+  var advancedUI;
   try { report = lab.restoreReport(sessionStorage.getItem(storageKey)); }
   catch (_) { storageAvailable = false; }
   report = report || lab.newReport();
@@ -65,6 +66,7 @@
     updateOutput("links", "links-output", "links-status");
     updateOutput("files", "files-output", "files-status");
     if (braveUI) braveUI.render(report);
+    if (advancedUI) advancedUI.render(report);
     var timeline = $("timeline");
     timeline.textContent = "";
     if (!report.entries.length) {
@@ -112,6 +114,7 @@
     $("run-baseline").disabled = !enabled || isolationRunning;
     $("run-file").disabled = !enabled || fileRunning;
     if (braveUI) braveUI.gate(enabled);
+    if (advancedUI) advancedUI.gate(enabled);
   }
   function environment() {
     if (!allowed()) return;
@@ -383,6 +386,7 @@
   $("clear-report").addEventListener("click", function () {
     generation += 1;
     pendingCancels.slice().forEach(function (cancel) { cancel(); });
+    if (advancedUI) advancedUI.reset();
     report = lab.newReport();
     $("device-note").value = ""; $("session-note").value = "";
     $("sentinel-ready").checked = false; $("parked").checked = false;
@@ -392,7 +396,9 @@
   });
   braveUI = window.BraveInstaller.attach({ add: add, allowed: allowed, getReport: function () { return report; } });
   braveUI.handleFallback();
-  window.addEventListener("hashchange", function () { braveUI.handleFallback(); });
+  advancedUI = window.AdvancedLab.attach({ add: add, allowed: allowed, getReport: function () { return report; } });
+  advancedUI.handleFallback();
+  window.addEventListener("hashchange", function () { braveUI.handleFallback(); advancedUI.handleFallback(); });
   /* Only annotate a fallback when this tab has a matching intent attempt.
      A fragment alone is never treated as evidence of app launch. */
   if (window.location.hash === "#intent-fallback") {

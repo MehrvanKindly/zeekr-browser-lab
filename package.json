@@ -1,6 +1,6 @@
 {
   "name": "zeekr-browser-lab",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "User-triggered browser diagnostics for an owned, parked vehicle",
   "scripts": {

@@ -97,7 +97,7 @@ test("all published HTML is noindex and every local asset reference exists", () 
 });
 test("scripts parse as classic scripts and no third-party runtime assets are loaded", () => {
   const site = path.resolve(__dirname, "../site");
-  for (const name of ["core.js", "app.js", "probe.js", "brave.js", "brave-release.js"]) new vm.Script(fs.readFileSync(path.join(site, name), "utf8"));
+  for (const name of ["core.js", "app.js", "probe.js", "brave.js", "brave-release.js", "advanced.js", "advanced-core.js"]) new vm.Script(fs.readFileSync(path.join(site, name), "utf8"));
   const html = fs.readFileSync(path.join(site, "index.html"), "utf8");
   assert.ok(!/<script[^>]*src="https?:/i.test(html));
   assert.ok(!/<link[^>]*href="https?:/i.test(html));

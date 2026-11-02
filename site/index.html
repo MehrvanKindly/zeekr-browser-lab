@@ -13,6 +13,8 @@
   <script defer src="./core.js"></script>
   <script defer src="./brave-release.js"></script>
   <script defer src="./brave.js"></script>
+  <script defer src="./advanced-core.js"></script>
+  <script defer src="./advanced.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body>
@@ -63,6 +65,24 @@
     </div>
     <div class="launch-row"><div><strong>After installation</strong><p>Try opening a test page specifically in Brave. Return and record whether you actually saw Brave.</p></div><a id="brave-launch" class="secondary brave-action" role="link" aria-disabled="true" tabindex="-1">Try opening Brave ↗</a></div>
     <p id="brave-notice" class="notice" role="status" aria-live="polite">Confirm the device is parked above, then choose an APK.</p>
+    <div id="advanced-tests" class="advanced-section">
+      <p class="eyebrow">ADDITIONAL BOUNDARY TESTS</p>
+      <h3>Permissions, timing & settings.</h3>
+      <p>Each test needs your action. None enables ADB, roots the device or installs an app silently.</p>
+      <div class="install-routes">
+        <article><span class="track">USER-ACTIVATION BOUNDARY</span><h3>Launch after a delay</h3><p>Schedule one attempt to open installed Brave in 7 seconds. Don’t interact during the countdown. The result records whether user activation was still present.</p><button id="advanced-schedule" class="secondary" data-test disabled>Schedule Brave launch · 7 seconds</button><button id="advanced-cancel" class="quiet" disabled>Cancel scheduled launch</button><p class="micro">Cancels if you leave this tab, navigate away or uncheck the parked confirmation. Nothing runs automatically on page load.</p></article>
+        <article><span class="track">WEB PERMISSION BOUNDARY</span><h3>Request a permission</h3><p>Ask this browser for notification permission. A prompt may appear; you can deny it. Existing permissions or browser policy can suppress the prompt.</p><button id="advanced-notifications" class="secondary" data-test disabled>Request notification permission</button><p class="micro">Records the API result only. No notification is sent, no push subscription is created, and no camera, microphone or location data is requested. Granting this says nothing about APK installation.</p></article>
+        <article><span class="track">ANDROID SETTINGS HANDOFF</span><h3>Request a settings screen</h3><p>Try Android’s documented installation-source or developer-settings action. The browser may block these because the screen is not available to web links.</p><a id="advanced-install" class="secondary" role="link" aria-disabled="true" tabindex="-1">Request install-permission settings ↗</a><a id="advanced-developer" class="secondary" role="link" aria-disabled="true" tabindex="-1">Request developer settings ↗</a><p class="micro">These links only request screens. They do not enable unknown sources or ADB, change settings, or confirm a screen opened.</p></article>
+      </div>
+      <p id="advanced-notice" class="notice" role="status" aria-live="polite">No additional test is running.</p>
+      <div class="install-results">
+        <div><label for="advanced-attempt">Settings request to annotate</label><select id="advanced-attempt"><option value="">Request a settings screen first</option></select></div>
+        <div><label for="advanced-outcome">Observed settings outcome</label><select id="advanced-outcome"><option value="uncertain">Unsure / not recorded</option><option value="opened">The requested screen opened</option><option value="blocked">Blocked / error message</option><option value="fallback">Fallback or another screen appeared</option><option value="no-effect">No visible effect</option></select></div>
+        <button id="advanced-record" class="secondary" data-test disabled>Save settings outcome</button>
+      </div>
+      <p class="micro">Record delayed Brave-launch outcomes using “Brave attempt to annotate” above. To revoke notification permission, use this browser’s site-permission settings.</p>
+      <details><summary>View additional observations & sources</summary><pre id="advanced-output">No additional observations yet.</pre><p><a href="https://developer.android.com/reference/android/provider/Settings#ACTION_MANAGE_UNKNOWN_APP_SOURCES" target="_blank" rel="noopener noreferrer">Android settings actions ↗</a> · <a href="https://developer.chrome.com/docs/android/intents" target="_blank" rel="noopener noreferrer">Chrome intent restrictions ↗</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static" target="_blank" rel="noopener noreferrer">Notification permission API ↗</a></p></details>
+    </div>
     <details><summary>How the four boundaries apply to installation</summary>
       <dl class="boundary-map"><dt>JavaScript → native</dt><dd>Bridge names do not reveal a documented installer API. The lab records them without guessing or invoking native methods.</dd><dt>Links / intents</dt><dd>The download and APK intent routes request standard user-visible handling. Installation still depends on Android and the hosting app.</dd><dt>Browser engine</dt><dd>Environment and isolation checks provide context. They do not exploit engine bugs to install software.</dd><dt>File boundary</dt><dd>A Downloads or Files app may pass the downloaded APK to an installer with a readable content URI. A hosted webpage cannot grant that access itself.</dd></dl>
       <p>If a route is blocked or the device has no installer, record that outcome. These routes do not bypass restrictions or install silently.</p>
@@ -152,7 +172,7 @@
     <div class="method-copy">
       <p>This lab does not identify the EU 7X’s browser implementation. A WebView-looking user agent can be changed or reduced; it does not verify the app’s engine, build, configuration or Android security patch level.</p>
       <p>Android’s documented risk classes include exposed native bridges, unsafe URI handling and permissive file access. Engine memory-safety bugs require an applicable vulnerable build. Testing their exploitability needs a controlled lab and a verified vendor build.</p>
-      <p>There is no standard webpage command to enable ADB, silently install an APK or root a vehicle. The Brave section requests downloads and app handoffs after your tap; Android owns any installation prompts. The lab does not attempt protection bypasses, vehicle control, native method invocation or automatic app launches.</p>
+      <p>There is no standard webpage command to enable ADB, silently install an APK or root a vehicle. The Brave section requests downloads and app handoffs; Android owns installation prompts. Additional tests include one explicitly scheduled Brave launch and a notification-permission request. Settings links only request a screen. The lab does not enable ADB, change Android settings, invoke unknown native methods, control the vehicle or exploit the browser.</p>
       <div class="legend"><span><i class="legend-dot observed"></i> Observed: limited behavior</span><span><i class="legend-dot review"></i> Review: unexpected behavior</span><span><i class="legend-dot unknown"></i> Unknown: not established</span></div>
       <details><summary>Primary sources & next steps</summary>
         <ul class="source-list">

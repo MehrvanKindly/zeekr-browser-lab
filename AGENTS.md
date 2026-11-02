@@ -1,6 +1,7 @@
 # Browser Lab rules
 
-- Keep tests visible and user-triggered. Official Brave APK download and standard Android handoff routes are allowed by the user's request; Android must handle installation consent and policy. No automatic app launch, exploit payload, malformed media, native method invocation, vehicle control, silent install, protection bypass or ADB action.
+- Keep tests visible and user-triggered. Official Brave APK download, standard Android handoffs, settings-screen requests, and notification-permission requests are allowed. Android owns installation consent and policy. No exploit payload, malformed media, unknown native method invocation, vehicle control, silent install, protection bypass or ADB action.
+- A delayed Brave launch requires an explicit click, runs only once after seven seconds, and is cancellable. Cancel when hidden, navigating away, paused or cleared. Never schedule on page load or resume a saved timer. Do not change settings or display notifications.
 - Brave routes use only verified official release assets. Record attempts separately from user-reported installer outcomes. Never claim an installation based on a click or an app-launch attempt.
 - Never infer vulnerability, patch status, app launch or successful download from API presence or an attempted action.
 - A zero-result bridge inventory and a failed local-file probe are inconclusive.

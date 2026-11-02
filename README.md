@@ -35,17 +35,29 @@ Brave currently documents Android 10 or later. That does not establish Android A
 
 Sources: [Brave's download and installation guidance](https://support.brave.app/hc/en-us/articles/360025390311-How-do-I-download-and-install-Brave), [system requirements](https://support.brave.app/hc/en-us/articles/360021357112-What-are-the-system-requirements-to-install-Brave), [pinned official release](https://github.com/brave/brave-browser/releases/tag/v1.98.63), and [Chrome intent handling](https://developer.chrome.com/docs/android/intents).
 
+## Additional boundary tests
+
+The Brave section includes three optional tests, separate from the baseline:
+
+- **Delayed Brave launch:** explicitly schedule one request after seven seconds. The page records the actual user-activation state at dispatch; if activation is still present, it skips the request. The timer cancels on Cancel, loss of the parked confirmation, hidden tab, outgoing link, page navigation, session clear, or a suspended/late timer. It never starts on load, persists, repeats, or resumes automatically. Outcomes belong to the existing Brave attempt selector.
+- **Notification permission:** a click calls the standard Notification permission API. The browser may display a prompt or return an existing decision. API results do not prove a prompt appeared. The lab sends no notifications and creates no service worker or push subscription. A granted permission can persist; revoke it through browser site settings. Replies arriving after pause/reset/navigation are discarded.
+- **Settings screen requests:** the two fixed Android actions request installation-source settings or developer settings. They do not change permissions, enable ADB, or alter policy. Many browsers will reject the intents because the destination is not a browsable activity. Record screen outcomes explicitly; fallback markers remain unverified.
+
+The lab still has no rooting, exploit chain, silent installation, unknown native-method invocation or vehicle-control code. No standard web API can provide those capabilities. A native interface or applicable vulnerability would need to be established separately.
+
+References: [Android settings actions](https://developer.android.com/reference/android/provider/Settings), [Chrome intent restrictions](https://developer.chrome.com/docs/android/intents), [Notification permission API](https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static).
+
 ## Coverage and limits
 
 | Investigation target | Implemented observation | What remains unknown |
 | --- | --- | --- |
 | JavaScript-to-app bridge | Own global names matching common bridge keywords, plus descriptor types; accessors are not evaluated | Whether candidates are native, authorized, callable or privileged; unknown-name, inherited and message-channel bridges |
-| Special links / intents | User-tapped HTTPS control, browsable VIEW intent, and geo search; linked manual observations | Automatic launch behavior, installed handlers, arbitrary intent handling, privilege escalation |
+| Special links / intents | User-tapped HTTPS / VIEW / geo links, one explicitly scheduled Brave launch, settings-screen requests; linked observations | Installed handlers, arbitrary intent handling, privilege escalation, behavior beyond these exact requests |
 | Browser engine | Reported user agent, low-entropy UA metadata, API presence, and sandboxed iframe DOM boundary | Actual engine build, patch/backport status, engine memory corruption, sandbox escape or root |
 | Unsafe file access | User-selected sentinel read and optional XHR to either of two exact sentinel paths | Arbitrary file access, content providers, file-origin universal access, app-private data |
 | Download handling | Static text and Blob attempts, separately annotated manual outcome | Whether an app implements DownloadListener, hidden download UI, unrelated permissions |
 
-A click is recorded as an **attempt**, never as an app launch or saved file. Manual outcomes are explicitly marked `user-reported`. A fallback page is not an app-launch acknowledgement. No permissions, clipboard contents, location, cookies, account information or arbitrary file contents are collected.
+A click is recorded as an **attempt**, never as an app launch or saved file. Manual outcomes are explicitly marked `user-reported`. A fallback page is not an app-launch acknowledgement. Only the optional notification test requests a web permission and records its API result; clipboard contents, location, cookies, account information and arbitrary file contents are not collected.
 
 A blocked or failed sentinel request is **inconclusive**. Causes include a missing file, unsupported scheme, browser policy, CORS, or a Content Security Policy. The page's CSP permits `file:` for this narrow XHR test, but the host/browser can still block it. Even an exact sentinel match establishes access only to that file from that context.
 
@@ -59,7 +71,7 @@ The sandbox test waits for a message from its own specific frame, checks the opa
 - **File configuration:** Android documents risks from permissive WebView file settings. HTTPS-origin XHR and a file picker do not comprehensively test those settings. Reviewing the host app's configuration is necessary.
 - **Downloads:** an app-hosted WebView can notify its host about download requests. Failure to save says nothing conclusive about native bridges or file permissions.
 
-There is no standard web command to enable ADB, install an APK silently or root a car. No vehicle controls, native method calls, broadcasts, shell execution, automatic app launches, port scanning, credential reads or exfiltration are implemented.
+There is no standard web command to enable ADB, install an APK silently or root a car. No vehicle controls, unknown native method calls, broadcasts, shell execution, unsolicited app launches, port scanning, credential reads or exfiltration are implemented. The optional delayed launch is explicitly scheduled by the user and bounded to one attempt.
 
 ## Privacy and persistence
 

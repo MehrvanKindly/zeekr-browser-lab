@@ -132,7 +132,7 @@
       function handleFallback() {
         var route = window.location.hash === "#brave-intent-fallback" ? "handoff" : window.location.hash === "#brave-launch-fallback" ? "launch" : null;
         if (!route) return;
-        var attempts = session.getReport().entries.filter(function (entry) { return entry.test === "brave.attempt" && entry.details.route === route; });
+        var attempts = session.getReport().entries.filter(function (entry) { return entry.test === "brave.attempt" && (entry.details.route === route || (route === "launch" && entry.details.route === "delayed-launch")); });
         if (attempts.length) {
           var attempt = attempts[attempts.length - 1];
           session.add("brave.fallback", "unknown", "Brave route fallback loaded; installation and launch remain unverified.", {

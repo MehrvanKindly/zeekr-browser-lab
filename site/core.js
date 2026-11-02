@@ -85,7 +85,8 @@
       entries: [],
       limitations: [
         "No verified EU 7X exploit or implementation is established by this report.",
-        "Native method invocation, automatic app launches, exploit payloads, vehicle control, silent installation, protection bypass and ADB are not tested.",
+        "Unknown native method invocation, exploit payloads, vehicle control, silent installation, protection bypass, rooting and enabling ADB are not tested.",
+        "One explicitly scheduled Brave launch, notification permission and Android settings-screen requests may be tested. These do not verify installation rights or change Android settings.",
         "Brave download and Android handoff routes are user-triggered; Android owns installation consent. Installation outcomes are user-reported, never automatically verified.",
         "Engine patch status, root access and comprehensive file/bridge security remain unknown.",
         "Manual observations are user-reported, not automatically verified.",
