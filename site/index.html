@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' file:; frame-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="description" content="User-triggered browser observations for a parked, owned vehicle. No exploit payloads or telemetry.">
+  <title>Browser Lab · Vehicle diagnostics</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./core.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+<a class="skip" href="#tests">Skip to tests</a>
+<header class="topbar">
+  <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">B<span>/</span>L</span> BROWSER LAB</a>
+  <nav aria-label="Main navigation"><a href="#tests">Test bench</a><a href="#evidence">Report <span id="report-count">0</span></a><a href="#method">Method</a></nav>
+  <span class="local-pill"><i aria-hidden="true"></i> Browser-local results</span>
+</header>
+<main>
+  <section class="hero" aria-labelledby="title">
+    <div>
+      <p class="eyebrow">VEHICLE BROWSER DIAGNOSTICS <span> / </span> EU 7X INVESTIGATION</p>
+      <h1 id="title">See what your<br>browser exposes<span class="accent">.</span></h1>
+      <p class="hero-copy">A controlled test bench for native bridges, app links, engine hints and file boundaries. Collect observations. Understand their limits.</p>
+      <div class="hero-actions"><button id="run-baseline" class="primary" data-test disabled>Run baseline checks <span aria-hidden="true">↗</span></button><a class="text-link" href="#method">What these tests tell you <span aria-hidden="true">↓</span></a></div>
+      <p class="micro">Baseline runs environment, bridge-name and sandbox checks only.</p>
+    </div>
+    <aside class="instrument" aria-label="Session status">
+      <div class="instrument-top"><span>SESSION / <span id="session-id">LOCAL</span></span><span class="status-dot" aria-hidden="true"></span></div>
+      <div class="orbit" aria-hidden="true"><div class="orbit-inner"><span>WEB</span><span class="orbit-rule"></span><strong>?</strong><span>NATIVE</span></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span></div>
+      <div class="instrument-bottom"><span>BOUNDARY STATUS</span><strong id="boundary-status">Awaiting observations</strong></div>
+    </aside>
+  </section>
+  <section class="setup" aria-label="Prepare a session">
+    <div class="setup-intro"><span class="step-label">BEFORE YOU START</span><strong>Park. Then investigate.</strong></div>
+    <label class="check-label"><input id="parked" type="checkbox"> <span>I’m parked and authorized to test this device.</span></label>
+    <p id="session-storage-note">Results stay in this tab’s session storage. No analytics or report uploads.</p>
+  </section>
+  <noscript><p class="notice">JavaScript is unavailable. Diagnostics cannot run; this does not establish why JavaScript is unavailable.</p></noscript>
+  <div id="notice" class="notice" role="status" aria-live="polite">Ready when you are. Confirm the device is parked to enable checks.</div>
+  <section id="tests" aria-labelledby="tests-title">
+    <div class="section-heading"><div><p class="eyebrow">THE TEST BENCH</p><h2 id="tests-title">Four boundaries to investigate.</h2></div><p>Each result is evidence of one behavior.<br>None is a security certification.</p></div>
+    <div class="test-grid">
+      <article class="test-card" id="bridge-card">
+        <div class="card-top"><span class="track">01 / APP SURFACE</span><span id="bridge-status" class="badge">Not run</span></div>
+        <h3>JavaScript → native</h3>
+        <p>Look for bridge-like names exposed on the page’s global object. Getters and native methods are never called.</p>
+        <div class="scope"><strong>OBSERVES</strong><span>Own property names and descriptor types</span></div>
+        <button id="run-bridges" class="secondary" data-test disabled>Inspect bridge names <span aria-hidden="true">↗</span></button>
+        <p class="caveat">A name is a lead, not proof of native access. Unknown names and message-based bridges can be missed.</p>
+        <details><summary>View bridge observations</summary><pre id="bridge-output">No observations yet.</pre></details>
+      </article>
+      <article class="test-card" id="links-card">
+        <div class="card-top"><span class="track">02 / APP HANDOFF</span><span id="links-status" class="badge">Manual</span></div>
+        <h3>Links & Android intents</h3>
+        <p>Compare a normal HTTPS link with an Android VIEW intent and a map link. Each tap may leave this page.</p>
+        <div class="link-buttons">
+          <a id="https-link" class="secondary gated-link" href="https://example.com/" aria-disabled="true">HTTPS control <span aria-hidden="true">↗</span></a>
+          <a id="intent-link" class="secondary gated-link" aria-disabled="true">Android VIEW intent <span aria-hidden="true">↗</span></a>
+          <a id="geo-link" class="secondary gated-link" href="geo:0,0?q=Oslo" aria-disabled="true">Map search: Oslo <span aria-hidden="true">↗</span></a>
+        </div>
+        <p class="caveat">No route is started by this page. Return here to record what you saw. A click or visibility change does not prove an app opened.</p>
+        <label for="link-attempt">Attempt to annotate</label><select id="link-attempt"><option value="">Tap a test link first</option></select>
+        <label for="link-observation">What happened?</label><select id="link-observation"><option value="uncertain">Unsure / not recorded</option><option value="app-opened">Another app opened</option><option value="browser-or-fallback">Browser page or fallback appeared</option><option value="no-visible-effect">No visible effect</option><option value="blocked-or-error">Blocked / error message</option></select>
+        <button id="record-link" class="quiet" data-test disabled>Save manual observation</button>
+        <details><summary>View link observations</summary><pre id="links-output">No observations yet.</pre></details>
+      </article>
+      <article class="test-card" id="engine-card">
+        <div class="card-top"><span class="track">03 / BROWSER ENGINE</span><span id="engine-status" class="badge">Not run</span></div>
+        <h3>Engine hints & isolation</h3>
+        <p>Record the reported user agent and feature availability. Check whether an opaque-origin sandbox frame blocks DOM access.</p>
+        <div class="scope"><strong>LIMIT</strong><span>Patch status and exploitability remain unknown</span></div>
+        <div class="button-pair"><button id="run-environment" class="secondary" data-test disabled>Capture environment</button><button id="run-isolation" class="secondary" data-test disabled>Check sandbox</button></div>
+        <p class="caveat">No malformed media, fuzzing, crash tests or exploit code. A working sandbox smoke check cannot rule out engine bugs.</p>
+        <details><summary>View engine observations</summary><pre id="engine-output">No observations yet.</pre></details>
+        <div id="probe-host" hidden></div>
+      </article>
+      <article class="test-card" id="files-card">
+        <div class="card-top"><span class="track">04 / FILE BOUNDARY</span><span id="files-status" class="badge">Manual</span></div>
+        <h3>Downloads & local files</h3>
+        <p>Try a harmless text download, then explicitly select that file. An optional local-path check reads only the named test sentinel.</p>
+        <div class="button-pair">
+          <a id="download-static" class="secondary gated-link" href="./zeekr-browser-lab-sentinel.txt" download="zeekr-browser-lab-sentinel.txt" aria-disabled="true">Download text</a>
+          <button id="download-blob" class="secondary" data-test disabled>Try Blob download</button>
+        </div>
+        <label for="download-observation">Download outcome (your observation)</label>
+        <select id="download-observation"><option value="uncertain">Unsure / not recorded</option><option value="saved">Saved a file</option><option value="displayed">Displayed text instead</option><option value="no-visible-effect">No visible effect</option><option value="blocked-or-error">Blocked / error</option></select>
+        <button id="record-download" class="quiet" data-test disabled>Record last download outcome</button>
+        <label for="sentinel-picker">Select only zeekr-browser-lab-sentinel.txt</label>
+        <input id="sentinel-picker" type="file" accept=".txt,text/plain" data-test disabled>
+        <p class="caveat">Picker access is user-granted, not a file-access vulnerability. A failed download does not establish other permissions.</p>
+        <details><summary>Optional HTTPS → local-file check</summary>
+          <p>First place the downloaded sentinel in this device’s Download folder. This checks one exact file URL using XMLHttpRequest. It does not inspect app data or arbitrary paths.</p>
+          <label for="sentinel-path">Sentinel path</label>
+          <select id="sentinel-path"><option value="0">/sdcard/Download/zeekr-browser-lab-sentinel.txt</option><option value="1">/storage/emulated/0/Download/zeekr-browser-lab-sentinel.txt</option></select>
+          <label class="check-label"><input type="checkbox" id="sentinel-ready"><span>I placed the sentinel at the selected path.</span></label>
+          <button id="run-file" class="secondary" data-test disabled>Check this sentinel path</button>
+          <p class="caveat">A failure is inconclusive: the file may be missing, the scheme unsupported, or a policy may block it. This HTTPS-origin test cannot evaluate file-origin universal access or content:// permissions.</p>
+        </details>
+        <details><summary>View file observations</summary><pre id="files-output">No observations yet.</pre></details>
+      </article>
+    </div>
+  </section>
+  <section id="evidence" class="report-section" aria-labelledby="report-title">
+    <div class="section-heading"><div><p class="eyebrow">YOUR EVIDENCE</p><h2 id="report-title">Keep the observation.<br>Keep the context.</h2></div><span id="event-total" class="report-total">0 entries</span></div>
+    <div class="report-grid">
+      <div>
+        <label for="device-note">Device / software version (optional)</label><input id="device-note" maxlength="200" placeholder="e.g. EU 7X · version shown in Settings">
+        <label for="session-note">Session notes (optional)</label><textarea id="session-note" rows="3" maxlength="2000" placeholder="What did you see? Avoid VINs, account details or other personal data."></textarea>
+        <p class="micro">Notes save in this tab as you type. Review the report before sharing it. Hosting providers still receive normal page requests.</p>
+        <div class="button-pair"><button id="show-report" class="primary">View report</button><button id="export-report" class="secondary">Download JSON</button></div>
+        <button id="clear-report" class="quiet">Clear this session</button>
+      </div>
+      <div class="timeline-panel"><div class="timeline-heading"><span>OBSERVATION LOG</span><span aria-hidden="true">●</span></div><ol id="timeline"><li class="empty">Your observations will appear here.<br>Start with the baseline checks.</li></ol></div>
+    </div>
+    <div id="report-panel" hidden><label for="report-json">Report JSON · selectable if downloads are unsupported</label><textarea id="report-json" readonly rows="16" spellcheck="false"></textarea></div>
+  </section>
+  <section id="method" class="method-section" aria-labelledby="method-title">
+    <div><p class="eyebrow">READ THE RESULT CORRECTLY</p><h2 id="method-title">Investigation targets.<br>Not findings about your car.</h2></div>
+    <div class="method-copy">
+      <p>This lab does not identify the EU 7X’s browser implementation. A WebView-looking user agent can be changed or reduced; it does not verify the app’s engine, build, configuration or Android security patch level.</p>
+      <p>Android’s documented risk classes include exposed native bridges, unsafe URI handling and permissive file access. Engine memory-safety bugs require an applicable vulnerable build. Testing their exploitability needs a controlled lab and a verified vendor build.</p>
+      <p>There is no standard webpage command to enable ADB, silently install an APK or root a vehicle. This lab does not attempt those operations, vehicle control, native method invocation, permission prompts or automatic app launches.</p>
+      <div class="legend"><span><i class="legend-dot observed"></i> Observed: limited behavior</span><span><i class="legend-dot review"></i> Review: unexpected behavior</span><span><i class="legend-dot unknown"></i> Unknown: not established</span></div>
+      <details><summary>Primary sources & next steps</summary>
+        <ul class="source-list">
+          <li><a href="https://developer.android.com/privacy-and-security/risks/insecure-webview-native-bridges" target="_blank" rel="noopener noreferrer">Android: native bridge risks ↗</a></li>
+          <li><a href="https://developer.chrome.com/docs/android/intents" target="_blank" rel="noopener noreferrer">Chrome: intent handling and user gestures ↗</a></li>
+          <li><a href="https://developer.android.com/privacy-and-security/risks/webview-unsafe-file-inclusion" target="_blank" rel="noopener noreferrer">Android: unsafe file inclusion ↗</a></li>
+          <li><a href="https://developer.android.com/reference/android/webkit/DownloadListener" target="_blank" rel="noopener noreferrer">Android: download callbacks ↗</a></li>
+          <li><a href="https://www.3ss.tv/automotive-entertainment" target="_blank" rel="noopener noreferrer">3SS: automotive platform and Zeekr case study ↗</a></li>
+          <li><a href="https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/SECURITY.md" target="_blank" rel="noopener noreferrer">Chromium: WebView security model ↗</a></li>
+        </ul>
+        <p>If a result needs review, preserve the JSON and exact app / firmware version. Ask the vendor to confirm origin checks, engine patch status, file settings and bridge allowlists. Do not infer root access or a vehicle exploit from these checks.</p>
+      </details>
+    </div>
+  </section>
+</main>
+<footer><span>BROWSER LAB <span class="footer-dot">/</span> INDEPENDENT DIAGNOSTICS</span><span>No affiliation with Zeekr or 3SS. No results uploaded.</span><a href="https://github.com/MehrvanKindly/zeekr-browser-lab" target="_blank" rel="noopener noreferrer">View source ↗</a></footer>
+</body>
+</html>
+
