@@ -392,6 +392,7 @@
   });
   braveUI = window.BraveInstaller.attach({ add: add, allowed: allowed, getReport: function () { return report; } });
   braveUI.handleFallback();
+  window.addEventListener("hashchange", function () { braveUI.handleFallback(); });
   /* Only annotate a fallback when this tab has a matching intent attempt.
      A fragment alone is never treated as evidence of app launch. */
   if (window.location.hash === "#intent-fallback") {

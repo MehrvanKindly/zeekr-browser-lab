@@ -140,7 +140,7 @@
             interpretation: "Fallback fragment observed after a recorded request. It is not an Android acknowledgement."
           });
         }
-        say("The browser returned to the fallback page. This does not confirm installation or app launch.");
+        say(attempts.length ? "Fallback marker observed after a request. Installation and app launch remain unverified." : "Fallback marker seen, but no matching Brave request exists in this tab.");
         try { history.replaceState(null, "", window.location.pathname + "#brave-install"); } catch (_) {}
       }
       function reset() {
